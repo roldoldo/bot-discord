@@ -9,7 +9,7 @@ const {
   ButtonStyle,
   Events,
   EmbedBuilder,
-  MessageFlags // ✅ ADICIONADO
+  MessageFlags 
 } = require('discord.js');
 
 const client = new Client({
@@ -17,8 +17,6 @@ const client = new Client({
 });
 
 // 🔑 CONFIGURAÇÃO
-const TOKEN = process.env.TOKEN;
-
 const CARGO_APROVADO = '1500373943293579314';
 
 // 📌 CANAIS
