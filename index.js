@@ -8,7 +8,8 @@ const {
   ButtonBuilder,
   ButtonStyle,
   Events,
-  EmbedBuilder
+  EmbedBuilder,
+  MessageFlags // ✅ ADICIONADO
 } = require('discord.js');
 
 const client = new Client({
@@ -42,10 +43,8 @@ client.once(Events.ClientReady, async () => {
       '• Siga as calls\n' +
       '• Rádio obrigatória\n' +
       '• Aguarde aprovação.'
-      
     )
     .setColor(0x2b2d31);
-
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -82,7 +81,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
     return interaction.showModal(modal);
   }
 
-
   // 2. MODAL SUBMIT
   if (interaction.isModalSubmit() && interaction.customId === 'registroModal') {
 
@@ -92,7 +90,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     return interaction.reply({
       content: `Confirma?\n\n👤 ${nome} | ${idPass}\n📌 ${recNome}`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral, // ✅ CORRIGIDO
       components: [
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
@@ -107,7 +105,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
       ]
     });
   }
-
 
   // 3. BOTÕES
   if (interaction.isButton()) {
@@ -148,7 +145,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return interaction.update({ content: '✅ Enviado para análise!', components: [] });
     }
 
-
     // STAFF DECISÃO
     if (acao === 'aprovar' || acao === 'negar') {
       const candidatoId = data[1];
@@ -187,5 +183,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
   }
 });
+
+// 🔥 ANTI-CRASH
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Rejection:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+});
+
+// 📊 LOGS
+client.on('error', console.error);
+client.on('warn', console.warn);
 
 client.login(process.env.TOKEN);
