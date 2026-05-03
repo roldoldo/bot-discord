@@ -41,7 +41,7 @@ client.once(Events.ClientReady, async () => {
       '⚠️ **AVISO IMPORTANTE:**\n' +
       '• Siga as calls\n' +
       '• Rádio obrigatória\n' +
-      '• Aguarde aprovação'
+      '• Aguarde aprovação.'
       
     )
     .setColor(0x2b2d31);
