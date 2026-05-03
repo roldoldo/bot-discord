@@ -1,6 +1,6 @@
 const { REST, Routes, SlashCommandBuilder } = require('discord.js');
 
-const TOKEN = 'MTUwMDQxMjYxNDYwODU1MTkzNg.GM0vQ6.60fIB8XbKaCD9DetbRHuytpH2LagPr-7WvwV_Y';
+const client.login(process.env.TOKEN);
 const CLIENT_ID = '1500412614608551936';
 const GUILD_ID = '1500373670990712852';
 
