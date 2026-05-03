@@ -17,9 +17,8 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
 });
 
-// 🔑 CONFIGURAÇÃO (Coloque seus dados aqui)
-const TOKEN = 'SEU_TOKEN_AQUI'; 
-const CLIENT_ID = 'ID_DO_SEU_BOT';
+// 🔑 CONFIGURAÇÃO (Coloque seus dados aqui) 
+const CLIENT_ID = '1500412614608551936';
 const CARGO_APROVADO = '1500373943293579314';
 
 // 📌 CANAIS
