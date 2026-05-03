@@ -45,8 +45,7 @@ client.once(Events.ClientReady, async () => {
       
     )
     .setColor(0x2b2d31);
-    .setFooter (text: 'AstroZ - PLF © Todos os direitos reservados.')
-    
+
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
