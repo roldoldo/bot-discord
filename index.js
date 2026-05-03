@@ -44,7 +44,7 @@ client.once(Events.ClientReady, async () => {
       '• Aguarde aprovação'
     )
     .setColor(0x2b2d31);
-    text: 'AstroZ - PLF © Todos os direitos reservados.'
+    .setFooter({ text: 'AstroZ - PLF © Todos os direitos reservados.' })
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
