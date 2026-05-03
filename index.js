@@ -42,9 +42,10 @@ client.once(Events.ClientReady, async () => {
       '• Siga as calls\n' +
       '• Rádio obrigatória\n' +
       '• Aguarde aprovação'
-      .setFooter({ text: 'AstroZ - PLF © Todos os direitos reservados.' })
+      
     )
     .setColor(0x2b2d31);
+    .setFooter (text: 'AstroZ - PLF © Todos os direitos reservados.')
     
 
   const row = new ActionRowBuilder().addComponents(
