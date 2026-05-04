@@ -138,9 +138,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
           .setStyle(ButtonStyle.Danger)
       );
 
-      await canalAprovacao.send({ embeds: [embedAnalise], components: [botoesStaff] });
+      await interaction.update({ content: '✅ Enviado para análise!', components: [] });
 
-      return interaction.update({ content: '✅ Enviado para análise!', components: [] });
+      await canalAprovacao.send({ embeds: [embedAnalise], components: [botoesStaff] });
     }
 
     // STAFF DECISÃO
