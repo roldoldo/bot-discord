@@ -88,7 +88,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     return interaction.reply({
       content: `Confirma?\n\n👤 ${nome} | ${idPass}\n📌 ${recNome}`,
-      flags: MessageFlags.Ephemeral, // ✅ CORRIGIDO
+      flags: MessageFlags.Ephemeral,
       components: [
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
@@ -129,11 +129,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
       const botoesStaff = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setCustomId(`aprovar|${interaction.user.id}|${idPass}`)
+          .setCustomId(`aprovar|${interaction.user.id}|${idPass}|${nome}`)
           .setLabel('Aceitar')
           .setStyle(ButtonStyle.Success),
         new ButtonBuilder()
-          .setCustomId(`negar|${interaction.user.id}|${idPass}`)
+          .setCustomId(`negar|${interaction.user.id}|${idPass}|${nome}`)
           .setLabel('Negar')
           .setStyle(ButtonStyle.Danger)
       );
@@ -147,6 +147,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (acao === 'aprovar' || acao === 'negar') {
       const candidatoId = data[1];
       const idPass = data[2];
+      const nome = data[3];
       const aprovado = acao === 'aprovar';
 
       const canalLog = interaction.guild.channels.cache.get(
@@ -166,7 +167,16 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
       if (aprovado) {
         const membro = await interaction.guild.members.fetch(candidatoId).catch(() => null);
-        if (membro) await membro.roles.add(CARGO_APROVADO).catch(() => {});
+
+        if (membro) {
+          await membro.roles.add(CARGO_APROVADO).catch((err) => {
+            console.error("Erro ao adicionar cargo:", err);
+          });
+
+          await membro.setNickname(`${nome} | ${idPass}`).catch((err) => {
+            console.error("Erro ao mudar nickname:", err);
+          });
+        }
       }
 
       await interaction.update({
