@@ -58,148 +58,159 @@ client.once(Events.ClientReady, async () => {
 // 📌 INTERAÇÕES
 client.on(Events.InteractionCreate, async (interaction) => {
 
-  // 1. ABRIR MODAL
-  if (interaction.isButton() && interaction.customId === 'abrir_formulario') {
-    const modal = new ModalBuilder()
-      .setCustomId('registroModal')
-      .setTitle('Sistema de Setagem');
+  try {
 
-    modal.addComponents(
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('nome').setLabel('Nome').setStyle(TextInputStyle.Short)
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('id_passaporte').setLabel('ID').setStyle(TextInputStyle.Short)
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('recrutador_nome').setLabel('Recrutador').setStyle(TextInputStyle.Short)
-      )
-    );
+    // 🔥 ABRIR MODAL (PRIORIDADE)
+    if (interaction.isButton() && interaction.customId === 'abrir_formulario') {
+      const modal = new ModalBuilder()
+        .setCustomId('registroModal')
+        .setTitle('Sistema de Setagem');
 
-    return interaction.showModal(modal);
-  }
-
-  // 2. MODAL SUBMIT
-  if (interaction.isModalSubmit() && interaction.customId === 'registroModal') {
-
-    const nome = interaction.fields.getTextInputValue('nome');
-    const idPass = interaction.fields.getTextInputValue('id_passaporte');
-    const recNome = interaction.fields.getTextInputValue('recrutador_nome');
-
-    return interaction.reply({
-      content: `Confirma?\n\n👤 ${nome} | ${idPass}\n📌 ${recNome}`,
-      flags: MessageFlags.Ephemeral,
-      components: [
+      modal.addComponents(
         new ActionRowBuilder().addComponents(
-          new ButtonBuilder()
-            .setCustomId(`conf|${nome}|${idPass}|${recNome}`)
-            .setLabel('Enviar')
-            .setStyle(ButtonStyle.Success),
-          new ButtonBuilder()
-            .setCustomId('cancelar')
-            .setLabel('Cancelar')
-            .setStyle(ButtonStyle.Danger)
+          new TextInputBuilder().setCustomId('nome').setLabel('Nome').setStyle(TextInputStyle.Short)
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder().setCustomId('id_passaporte').setLabel('ID').setStyle(TextInputStyle.Short)
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder().setCustomId('recrutador_nome').setLabel('Recrutador').setStyle(TextInputStyle.Short)
         )
-      ]
-    });
-  }
-
-  // 3. BOTÕES
-  if (interaction.isButton()) {
-    const data = interaction.customId.split('|');
-    const acao = data[0];
-
-    if (acao === 'cancelar') {
-      return interaction.update({ content: '❌ Cancelado.', components: [] });
-    }
-
-    // ENVIAR PARA STAFF
-    if (acao === 'conf') {
-      const [, nome, idPass, recNome] = data;
-
-      const canalAprovacao = interaction.guild.channels.cache.get(CANAL_APROVACAO);
-
-      const embedAnalise = new EmbedBuilder()
-        .setTitle('📋 | Novo Registro')
-        .setDescription(
-          `👤 <@${interaction.user.id}>\n\n` +
-          `**Nome:** ${nome}\n**ID:** ${idPass}\n**Recrutador:** ${recNome}`
-        )
-        .setColor(0x2b2d31);
-
-      const botoesStaff = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`aprovar|${interaction.user.id}|${idPass}|${nome}`)
-          .setLabel('Aceitar')
-          .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-          .setCustomId(`negar|${interaction.user.id}|${idPass}|${nome}`)
-          .setLabel('Negar')
-          .setStyle(ButtonStyle.Danger)
       );
 
-      await interaction.update({ content: '✅ Enviado para análise!', components: [] });
-
-      await canalAprovacao.send({ embeds: [embedAnalise], components: [botoesStaff] });
+      await interaction.showModal(modal);
+      return; // 🚨 CRÍTICO
     }
 
-    // STAFF DECISÃO
-    if (acao === 'aprovar' || acao === 'negar') {
-      const candidatoId = data[1];
-      const idPass = data[2];
-      const nome = data[3];
-      const aprovado = acao === 'aprovar';
+    // 🔥 MODAL SUBMIT
+    if (interaction.isModalSubmit() && interaction.customId === 'registroModal') {
 
-      const canalLog = interaction.guild.channels.cache.get(
-        aprovado ? CANAL_APROVADOS : CANAL_RECUSADOS
-      );
+      const nome = interaction.fields.getTextInputValue('nome');
+      const idPass = interaction.fields.getTextInputValue('id_passaporte');
+      const recNome = interaction.fields.getTextInputValue('recrutador_nome');
 
-      const embedLog = new EmbedBuilder()
-        .setTitle(aprovado ? '✅ Registro Aprovado' : '❌ Registro Negado')
-        .setColor(aprovado ? 0x00FF00 : 0xFF0000)
-        .addFields(
-          { name: 'Candidato:', value: `<@${candidatoId}> (ID: ${idPass})`, inline: true },
-          { name: 'Staff:', value: `<@${interaction.user.id}>`, inline: true }
-        )
-        .setTimestamp();
-
-      if (canalLog) await canalLog.send({ embeds: [embedLog] });
-
-      if (aprovado) {
-        const membro = await interaction.guild.members.fetch(candidatoId).catch(() => null);
-
-        if (membro) {
-          await membro.roles.add(CARGO_APROVADO).catch((err) => {
-            console.error("Erro ao adicionar cargo:", err);
-          });
-
-          await membro.setNickname(`${nome} | ${idPass}`).catch((err) => {
-            console.error("Erro ao mudar nickname:", err);
-          });
-        }
-      }
-
-      await interaction.update({
-        content: `Ação realizada por <@${interaction.user.id}>!`,
-        embeds: [],
-        components: []
+      await interaction.reply({
+        content: `Confirma?\n\n👤 ${nome} | ${idPass}\n📌 ${recNome}`,
+        flags: MessageFlags.Ephemeral,
+        components: [
+          new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+              .setCustomId(`conf|${nome}|${idPass}|${recNome}`)
+              .setLabel('Enviar')
+              .setStyle(ButtonStyle.Success),
+            new ButtonBuilder()
+              .setCustomId('cancelar')
+              .setLabel('Cancelar')
+              .setStyle(ButtonStyle.Danger)
+          )
+        ]
       });
 
-      setTimeout(() => {
-        interaction.message?.delete().catch(() => {});
-      }, 2000);
+      return;
     }
+
+    // 🔥 BOTÕES
+    if (interaction.isButton()) {
+
+      if (interaction.replied || interaction.deferred) return;
+
+      const data = interaction.customId.split('|');
+      const acao = data[0];
+
+      if (acao === 'cancelar') {
+        await interaction.update({ content: '❌ Cancelado.', components: [] });
+        return;
+      }
+
+      // 📤 ENVIAR PRA STAFF
+      if (acao === 'conf') {
+        const [, nome, idPass, recNome] = data;
+
+        await interaction.update({ content: '✅ Enviado para análise!', components: [] });
+
+        const canalAprovacao = interaction.guild.channels.cache.get(CANAL_APROVACAO);
+
+        const embedAnalise = new EmbedBuilder()
+          .setTitle('📋 | Novo Registro')
+          .setDescription(
+            `👤 <@${interaction.user.id}>\n\n` +
+            `**Nome:** ${nome}\n**ID:** ${idPass}\n**Recrutador:** ${recNome}`
+          )
+          .setColor(0x2b2d31);
+
+        const botoesStaff = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId(`aprovar|${interaction.user.id}|${idPass}|${nome}`)
+            .setLabel('Aceitar')
+            .setStyle(ButtonStyle.Success),
+          new ButtonBuilder()
+            .setCustomId(`negar|${interaction.user.id}|${idPass}|${nome}`)
+            .setLabel('Negar')
+            .setStyle(ButtonStyle.Danger)
+        );
+
+        await canalAprovacao.send({ embeds: [embedAnalise], components: [botoesStaff] });
+        return;
+      }
+
+      // ✅ STAFF DECISÃO
+      if (acao === 'aprovar' || acao === 'negar') {
+
+        await interaction.deferUpdate(); // 🔥 evita timeout
+
+        const candidatoId = data[1];
+        const idPass = data[2];
+        const nome = data[3];
+        const aprovado = acao === 'aprovar';
+
+        const canalLog = interaction.guild.channels.cache.get(
+          aprovado ? CANAL_APROVADOS : CANAL_RECUSADOS
+        );
+
+        const embedLog = new EmbedBuilder()
+          .setTitle(aprovado ? '✅ Registro Aprovado' : '❌ Registro Negado')
+          .setColor(aprovado ? 0x00FF00 : 0xFF0000)
+          .addFields(
+            { name: 'Candidato:', value: `<@${candidatoId}> (ID: ${idPass})`, inline: true },
+            { name: 'Staff:', value: `<@${interaction.user.id}>`, inline: true }
+          )
+          .setTimestamp();
+
+        if (canalLog) await canalLog.send({ embeds: [embedLog] });
+
+        if (aprovado) {
+          const membro = await interaction.guild.members.fetch(candidatoId).catch(() => null);
+
+          if (membro) {
+            await membro.roles.add(CARGO_APROVADO).catch(console.error);
+            await membro.setNickname(`${nome} | ${idPass}`).catch(console.error);
+          }
+        }
+
+        await interaction.message.edit({
+          content: `Ação realizada por <@${interaction.user.id}>!`,
+          embeds: [],
+          components: []
+        });
+
+        setTimeout(() => {
+          interaction.message?.delete().catch(() => {});
+        }, 2000);
+
+        return;
+      }
+    }
+
+  } catch (err) {
+    console.error('❌ Erro geral:', err);
   }
+
 });
+
 
 // 🔥 ANTI-CRASH
-process.on('unhandledRejection', (err) => {
-  console.error('❌ Unhandled Rejection:', err);
-});
-
-process.on('uncaughtException', (err) => {
-  console.error('❌ Uncaught Exception:', err);
-});
+process.on('unhandledRejection', console.error);
+process.on('uncaughtException', console.error);
 
 // 📊 LOGS
 client.on('error', console.error);
